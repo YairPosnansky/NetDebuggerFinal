@@ -14,6 +14,8 @@ import {
   Spinner,
   CircularProgress,
   useToast,
+  FormControl,
+  FormLabel,
 } from "@chakra-ui/react";
 
 interface PacketData {
@@ -33,6 +35,8 @@ const Sniffer = () => {
   const [isSnifferRunning, setIsSnifferRunning] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [networkInterfaces, setNetworkInterfaces] = useState<string[]>([]);
+  const [selectedInterface, setSelectedInterface] = useState("");
   const toast = useToast();
 
   useEffect(() => {
@@ -67,6 +71,21 @@ const Sniffer = () => {
       fetchData();
     }
   }, [selectedTable, refreshKey]);
+
+  useEffect(() => {
+    const fetchNetworkInterfaces = async () => {
+      try {
+        const response = await axios.get("/network_interfaces");
+        const interfaces = response.data;
+        setNetworkInterfaces(interfaces);
+        setSelectedInterface(interfaces[0]); // Set the default interface to the first one
+      } catch (error) {
+        console.error("Error fetching network interfaces:", error);
+      }
+    };
+
+    fetchNetworkInterfaces();
+  }, []);
 
   const handleFilter = () => {
     console.log("Filter values:", {
@@ -124,7 +143,7 @@ const Sniffer = () => {
         await axios.post("/stop_sniffer");
         setIsSnifferRunning(false);
       } else {
-        await axios.post("/start_sniffer");
+        await axios.post("/start_sniffer", { iface: selectedInterface });
         setIsSnifferRunning(true);
       }
       setRefreshKey((prevKey) => prevKey + 1);
@@ -240,12 +259,14 @@ const Sniffer = () => {
         </Select>
       </Grid>
       <Box display="flex" alignItems="center" mb={4}>
-        <Button onClick={handleFilter} mr={4}>
+        <Button onClick={handleFilter} mr={4} px={4}>
           Filter
         </Button>
         <Select
           value={selectedTable}
           onChange={(e) => setSelectedTable(e.target.value)}
+          mr={4}
+          minWidth="200px"
         >
           {tableList.map((table) => (
             <option key={table} value={table}>
@@ -253,24 +274,42 @@ const Sniffer = () => {
             </option>
           ))}
         </Select>
+        <Select
+          value={selectedInterface}
+          onChange={(e) => setSelectedInterface(e.target.value)}
+          mr={4}
+          minWidth="200px"
+        >
+          {networkInterfaces.map((iface) => (
+            <option key={iface} value={iface}>
+              {iface}
+            </option>
+          ))}
+        </Select>
         <Button
           onClick={handleStartStopSniffer}
-          ml={4}
           colorScheme={isSnifferRunning ? "red" : "blue"}
           leftIcon={isSnifferRunning ? <Spinner size="sm" /> : undefined}
+          mr={4}
+          px={6}
         >
-          {isSnifferRunning ? "Stop Sniffing" : "Start Sniffing"}
+          {isSnifferRunning ? "Stop" : "Start"}
         </Button>
-        <Button onClick={handleRefresh} ml={4} bg="#6AC26F" color="white">
+        <Button
+          onClick={handleRefresh}
+          bg="#6AC26F"
+          color="white"
+          mr={4}
+          px={6}
+        >
           Refresh
         </Button>
         <Button
           onClick={handleDownloadHistory}
-          ml={4}
           bg="#3477eb"
           color="white"
           disabled={isDownloading}
-          px={4}
+          px={6}
         >
           {isDownloading ? (
             <CircularProgress isIndeterminate size="24px" color="white" />

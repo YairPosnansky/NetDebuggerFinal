@@ -8,7 +8,6 @@ class ysniffer:
 
   pck = ()
 
-#Unite
   def packet_callback(self,packet):
     captured_output = io.StringIO()
     print(packet.show(dump=True), file=captured_output)
@@ -30,69 +29,13 @@ class ysniffer:
     pass
 
 
-  def sniff(self):
-    sniff(count=1, filter=None,  iface='Ethernet', prn=self.packet_callback)
+  def sniff(self, iface):
+    sniff(count=1, filter=None,  iface=iface, prn=self.packet_callback)
 
-#ARP#
-  def packet_callback_arp(self,packet):
-      captured_output = io.StringIO()
-      print(packet.show(dump=True), file=captured_output)
-      output = captured_output.getvalue()
-      self.process_captured_output_arp(output=output)
+  @staticmethod
+  def get_network_interfaces():
+    return [iface.name for iface in get_working_ifaces()]
 
-  # Create a function to handle the captured output
-  def process_captured_output_arp(self,output:str):
-      self.pck =  packet_parser.ARP(output.replace("\n", ""))
-      pass
-      
-  def sniff_arp(self):
-    sniff(count=1, filter='arp',  iface='Ethernet', prn=self.packet_callback_arp)
-
-    
-#ICMP#
-  def packet_callback_icmp(self,packet):
-      captured_output = io.StringIO()
-      print(packet.show(dump=True), file=captured_output)
-      output = captured_output.getvalue()
-      self.process_captured_output_icmp(output=output)
-
-  # Create a function to handle the captured output
-  def process_captured_output_icmp(self,output:str):
-      self.pck =  packet_parser.ICMP(output.replace("\n", ""))
-      pass
-      
-  def sniff_icmp(self):
-    sniff(count=1, filter='icmp',  iface='Ethernet', prn=self.packet_callback_icmp)
-#TCP#
-  def packet_callback_tcp(self,packet):
-      captured_output = io.StringIO()
-      print(packet.show(dump=True), file=captured_output)
-      output = captured_output.getvalue()
-      self.process_captured_output_tcp(output=output)
-
-  # Create a function to handle the captured output
-  def process_captured_output_tcp(self,output:str):
-      self.pck =  packet_parser.TCP(output.replace("\n", ""))
-      pass
-      
-  def sniff_tcp(self):
-    sniff(count=1, filter='tcp',  iface='Ethernet', prn=self.packet_callback_tcp)
-
-#UDP#
-  def packet_callback_udp(self,packet):
-      captured_output = io.StringIO()
-      print(packet.show(dump=True), file=captured_output)
-      output = captured_output.getvalue()
-      self.process_captured_output_udp(output=output)
-
-  # Create a function to handle the captured output
-  def process_captured_output_udp(self,output:str):
-      self.pck =  packet_parser.TCP(output.replace("\n", ""))
-      pass
-      
-  def sniff_udp(self):
-    sniff(count=1, filter='udp',  iface='Ethernet', prn=self.packet_callback_udp)
-  
   #GETPACKET#
   def get_pck(self):
     tmp_pck = self.pck
@@ -105,7 +48,7 @@ if __name__ == '__main__':
   #"Unit Testing" ;)
   for i in range(80):
     sniffer = ysniffer()
-    sniffer.sniff_udp()
+    sniffer.sniff('Ethernet')
     pck = sniffer.get_pck()
     if pck != None:
       print(pck)

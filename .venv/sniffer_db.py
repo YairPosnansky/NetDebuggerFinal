@@ -10,18 +10,18 @@ class sniffer_db:
     db_file = r'.venv\\\\sniff_history.db'
 
     @staticmethod
-    def start():
+    def start(iface):
         # Create a table
         timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         table_name = f"sniff_{timestamp}"
         sniffer_db.sniffer_running = True
 
         # Start the sniffer in a thread
-        sniffer_db.sniffer_thread = threading.Thread(target=sniffer_db.sniffer_loop, args=(table_name,))
+        sniffer_db.sniffer_thread = threading.Thread(target=sniffer_db.sniffer_loop, args=(table_name, iface))
         sniffer_db.sniffer_thread.start()
 
     @staticmethod
-    def sniffer_loop(table_name):
+    def sniffer_loop(table_name, iface):
         # Connect to the database
         conn = sqlite3.connect(sniffer_db.db_file)
         cursor = conn.cursor()
@@ -41,7 +41,7 @@ class sniffer_db:
 
         while sniffer_db.sniffer_running:
             sniffer = ysniffer()
-            sniffer.sniff()
+            sniffer.sniff(iface)
 
             # Parse the packet data
             psrc, pdst, src, dst, protocol, load = sniffer.pck
@@ -93,6 +93,6 @@ if __name__ == "__main__":
     # Get the database file name
     db_file = sniffer_db.get_db()
     print(db_file)
-    sniffer_db.start()
+    sniffer_db.start('Ethernet')
     if input() == 'c':
         sniffer_db.stop()

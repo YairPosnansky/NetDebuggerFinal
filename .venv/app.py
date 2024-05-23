@@ -8,6 +8,7 @@ from cryptography import x509
 from cryptography.x509.oid import NameOID
 from cryptography.hazmat.backends import default_backend
 from diagnostics import Diagnostics
+from ysniffer import ysniffer
 import os
 
 
@@ -45,9 +46,16 @@ def get_table_contents(table_name):
     conn.close()
 
     return jsonify(table_data)
+
+@app.route('/network_interfaces', methods=['GET'])
+def get_network_interfaces():
+    interfaces = ysniffer.get_network_interfaces()
+    return jsonify(interfaces)
+
 @app.route('/start_sniffer', methods=['POST'])
 def start_sniffer():
-    sniffer_db.start()
+    iface = request.json['iface']
+    sniffer_db.start(iface)
     return jsonify({'status': 'success', 'message': 'Sniffer started'})
 
 @app.route('/stop_sniffer', methods=['POST'])
