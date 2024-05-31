@@ -7,12 +7,12 @@ from time import sleep
 class sniffer_db:
     sniffer_running = False
     sniffer_thread = None
-    db_file = r'.venv\\\\sniff_history.db'
+    db_file = r'.venv\sniff_history.db'
 
     @staticmethod
     def start(iface):
         # Create a table
-        timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        timestamp = datetime.datetime.now().strftime("%Y%d%m%H%M%S")
         table_name = f"sniff_{timestamp}"
         sniffer_db.sniffer_running = True
 
@@ -47,7 +47,7 @@ class sniffer_db:
             psrc, pdst, src, dst, protocol, load = sniffer.pck
 
             # Insert 
-            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            timestamp = datetime.datetime.now().strftime("%Y-%d-%m %H:%M:%S")
             cursor.execute(f"""
                 INSERT INTO {table_name}
                 (time, psrc, pdst, src, dst, protocol, load)

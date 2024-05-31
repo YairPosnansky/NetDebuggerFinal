@@ -32,7 +32,7 @@ class packet_parser:
             pdst = "Unknown"
 
         try:
-            load = re.search(load_regex, packet_string).group(1)
+            load = packet_string
         except AttributeError:
             load = "Unknown"
 
@@ -69,7 +69,7 @@ class packet_parser:
           pdst = "Unknown"
 
       try:
-          load = re.search(load_regex, packet_string).group(1)
+          load = packet_string
       except AttributeError:
           load = "Unknown"
 
