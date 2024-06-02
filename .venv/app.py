@@ -1,5 +1,5 @@
 import datetime
-from flask import Flask, jsonify, redirect, request, render_template, send_file
+from flask import Flask, jsonify, redirect, request, render_template, send_file , send_from_directory
 from sniffer_db import sniffer_db
 import sqlite3
 from cryptography.hazmat.primitives import serialization, hashes
@@ -78,6 +78,12 @@ def traceroute():
     ip = request.json['ip']
     hops = Diagnostics.traceroute(ip)
     return jsonify(hops)
+
+pdf_path = os.path.abspath(r'.venv/static/NetDebugger-3.pdf')
+
+@app.route('/pdf', methods=['GET'])
+def get_pdf():
+    return send_from_directory(os.path.dirname(pdf_path), os.path.basename(pdf_path))
 
 # Self-signed certificate generation
 
