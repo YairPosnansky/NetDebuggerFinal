@@ -1,36 +1,59 @@
 import React, { useState, useEffect } from "react";
-import { Document, Page } from "react-pdf";
-import "react-pdf/dist/esm/Page/AnnotationLayer.css";
-import "react-pdf/dist/esm/Page/TextLayer.css";
 import axios from "axios";
+import {
+  Box,
+  Heading,
+  Text,
+  Spinner,
+  useColorModeValue,
+} from "@chakra-ui/react";
 
 const About = () => {
-  const [pdfData, setPdfData] = useState(null);
+  const [pdfUrl, setPdfUrl] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchPdf = async () => {
       try {
         const response = await axios.get("/pdf", {
-          responseType: "arraybuffer",
+          responseType: "blob",
         });
-        setPdfData(response.data);
+        const url = URL.createObjectURL(response.data);
+        setPdfUrl(url);
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching PDF:", error);
+        setIsLoading(false);
       }
     };
 
     fetchPdf();
   }, []);
 
+  const bgColor = useColorModeValue("white", "gray.700");
+  const textColor = useColorModeValue("black", "white");
+
   return (
-    <div>
-      <h1>About</h1>
-      {pdfData && (
-        <Document file={{ data: pdfData }}>
-          <Page pageNumber={1} />
-        </Document>
+    <Box maxW="800px" mx="auto" p={8}>
+      <Heading as="h1" size="2xl" mb={4}>
+        Docs
+      </Heading>
+      {isLoading ? (
+        <Spinner size="xl" />
+      ) : (
+        <Box
+          as="iframe"
+          src={pdfUrl}
+          width="100%"
+          height="600px"
+          title="About Us PDF"
+          borderRadius="md"
+          boxShadow="md"
+          bg={bgColor}
+          color={textColor}
+        />
       )}
-    </div>
+    </Box>
   );
 };
 
