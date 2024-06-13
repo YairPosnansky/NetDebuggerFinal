@@ -79,7 +79,7 @@ def traceroute():
     hops = Diagnostics.traceroute(ip)
     return jsonify(hops)
 
-pdf_path = os.path.abspath(r'.venv/static/NetDebugger-3.pdf')
+pdf_path = os.path.abspath(r'.venv\static\NetDebugger.pdf')
 
 @app.route('/pdf', methods=['GET'])
 def get_pdf():
